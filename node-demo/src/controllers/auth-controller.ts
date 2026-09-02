@@ -1,6 +1,6 @@
-import bcrypt from 'bcrypt';
 import type { Request, Response } from 'express';
 import { logger } from '../lib/logger.js';
+import { hashPassword, verifyPassword } from '../services/password-service.js';
 
 // In-memory user store for the demo. Keyed by email.
 const users = new Map<string, { id: string; email: string; passwordHash: string }>();
@@ -17,9 +17,7 @@ export const authController = {
       return res.status(409).json({ error: 'email already registered' });
     }
 
-    // Inline password hashing — extract me into a password service
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await hashPassword(password);
 
     const id = crypto.randomUUID();
     users.set(email, { id, email, passwordHash });
@@ -40,8 +38,7 @@ export const authController = {
       return res.status(401).json({ error: 'invalid credentials' });
     }
 
-    // Inline password verification — extract me into a password service
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
       logger.warn({ email }, 'Login failed: bad password');
       return res.status(401).json({ error: 'invalid credentials' });
