@@ -18,8 +18,10 @@ app.post('/auth/register', asyncHandler(authController.register));
 app.post('/auth/login', asyncHandler(authController.login));
 
 app.post('/users', asyncHandler(userController.create));
+app.put('/users', asyncHandler(userController.update));
 app.get('/users', asyncHandler(userController.list));
 app.get('/users/:id', asyncHandler(userController.getById));
+app.delete('/users/:id', asyncHandler(userController.deleteById));
 
 app.use((_req, res) => {
   res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });

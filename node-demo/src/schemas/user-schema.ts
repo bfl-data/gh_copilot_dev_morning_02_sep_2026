@@ -6,6 +6,11 @@ export const createUserSchema = z.object({
   displayName: z.string().trim().min(1).max(80),
 });
 
+/** Request body for `PUT /users`. */
+export const updateUserSchema = createUserSchema.extend({
+  id: z.uuid(),
+});
+
 /** Route params for `GET /users/:id`. */
 export const userIdParamSchema = z.object({
   id: z.uuid(),

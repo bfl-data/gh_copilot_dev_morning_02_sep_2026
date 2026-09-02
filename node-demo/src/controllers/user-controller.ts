@@ -1,6 +1,10 @@
 import type { Request, Response } from 'express';
 import { logger } from '../lib/logger.js';
-import { createUserSchema, userIdParamSchema } from '../schemas/user-schema.js';
+import {
+    createUserSchema,
+    updateUserSchema,
+    userIdParamSchema,
+} from '../schemas/user-schema.js';
 
 interface UserProfile {
   id: string;
@@ -43,6 +47,36 @@ export const userController = {
   },
 
   /**
+   * Replaces an existing user profile's editable fields.
+   *
+   * @param req - Express request. Body: `{ id, email, displayName }`.
+   * @param res - Express response.
+   * @returns 200 with the updated profile, 404 when no profile exists.
+   * @throws {ZodError} When the body fails schema validation.
+   *
+   * @example
+   *   PUT /users { "id": "9f1c…", "email": "ada@example.com", "displayName": "Ada" }
+   *   → 200 { "id": "9f1c…", "email": "ada@example.com", "displayName": "Ada", "createdAt": "…" }
+   */
+  update: async (req: Request, res: Response) => {
+    const { id, email, displayName } = updateUserSchema.parse(req.body);
+
+    const profile = profiles.get(id);
+    if (!profile) {
+      logger.warn({ userId: id }, 'Profile update missed');
+      return res.status(404).json({
+        error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
+      });
+    }
+
+    const updatedProfile: UserProfile = { ...profile, email, displayName };
+    profiles.set(id, updatedProfile);
+
+    logger.info({ userId: id }, 'User profile updated');
+    return res.status(200).json(updatedProfile);
+  },
+
+  /**
    * Fetches a single user profile by id.
    *
    * @param req - Express request. Params: `{ id }`.
@@ -65,6 +99,28 @@ export const userController = {
     }
 
     return res.status(200).json(profile);
+  },
+
+  /**
+   * Deletes a user profile by id.
+   *
+   * @param req - Express request. Params: `{ id }`.
+   * @param res - Express response.
+   * @returns 204 when deleted, 404 when no profile exists.
+   * @throws {ZodError} When `id` is not a UUID.
+   */
+  deleteById: async (req: Request, res: Response) => {
+    const { id } = userIdParamSchema.parse(req.params);
+
+    if (!profiles.delete(id)) {
+      logger.warn({ userId: id }, 'Profile deletion missed');
+      return res.status(404).json({
+        error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
+      });
+    }
+
+    logger.info({ userId: id }, 'User profile deleted');
+    return res.status(204).send();
   },
 
   /**

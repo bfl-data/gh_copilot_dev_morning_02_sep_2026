@@ -28,6 +28,18 @@ export function last<T>(items: T[]): T | undefined {
 }
 
 /**
+ * Returns the first item matching the predicate, or undefined when none match.
+ * @param items - The items to search.
+ * @param predicate - Determines whether an item matches.
+ * @returns The first matching item, or undefined.
+ * @example
+ *   findItem([1, 2, 3], (item) => item > 1) // returns 2
+ */
+export function findItem<T>(items: T[], predicate: (item: T) => boolean): T | undefined {
+  return items.find(predicate);
+}
+
+/**
  * Chunks an array into groups of the given size.
  * @example
  *   chunk([1, 2, 3, 4, 5], 2) // returns [[1, 2], [3, 4], [5]]
