@@ -41,11 +41,17 @@ export function findItem<T>(items: T[], predicate: (item: T) => boolean): T | un
 
 /**
  * Chunks an array into groups of the given size.
+ * @param items - The items to divide into chunks.
+ * @param size - The positive integer maximum number of items per chunk.
+ * @returns A new array containing the chunks.
+ * @throws {RangeError} When size is not a positive integer.
  * @example
  *   chunk([1, 2, 3, 4, 5], 2) // returns [[1, 2], [3, 4], [5]]
  */
 export function chunk<T>(items: T[], size: number): T[][] {
-  if (size <= 0) throw new RangeError('size must be positive');
+  if (!Number.isInteger(size) || size <= 0) {
+    throw new RangeError('size must be a positive integer');
+  }
   const result: T[][] = [];
   for (let i = 0; i < items.length; i += size) {
     result.push(items.slice(i, i + size));

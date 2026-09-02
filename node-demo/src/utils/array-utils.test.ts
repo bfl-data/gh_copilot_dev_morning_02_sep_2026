@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findItem } from './array-utils.js';
+import { chunk, findItem } from './array-utils.js';
 
 describe('findItem', () => {
   it('returns the first item that matches the predicate', () => {
@@ -33,5 +33,40 @@ describe('findItem', () => {
 
     // Assert
     expect(result).toBeUndefined();
+  });
+});
+
+describe('chunk', () => {
+  it('divides items into chunks and preserves a smaller final chunk', () => {
+    // Arrange
+    const items = [1, 2, 3, 4, 5];
+
+    // Act
+    const result = chunk(items, 2);
+
+    // Assert
+    expect(result).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  it('throws a RangeError when size is zero', () => {
+    // Arrange
+    const items = [1, 2, 3];
+
+    // Act
+    const act = () => chunk(items, 0);
+
+    // Assert
+    expect(act).toThrow(new RangeError('size must be a positive integer'));
+  });
+
+  it('throws a RangeError when size is not a finite integer', () => {
+    // Arrange
+    const items = [1, 2, 3];
+
+    // Act
+    const act = () => chunk(items, Number.NaN);
+
+    // Assert
+    expect(act).toThrow(new RangeError('size must be a positive integer'));
   });
 });
