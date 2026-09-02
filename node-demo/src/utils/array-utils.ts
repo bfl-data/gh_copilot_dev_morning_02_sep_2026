@@ -4,7 +4,7 @@
  *   findLastEven([1, 2, 3, 4, 5, 6]) // returns 6
  */
 export function findLastEven(numbers: number[]): number | undefined {
-  for (let i = 0; i < numbers.length; i++) {
+  for (let i = numbers.length - 1; i >= 0; i--) {
     const n = numbers[i];
     if (n !== undefined && n % 2 === 0) {
       return n;
