@@ -1,5 +1,7 @@
 ---
+agent: 'agent'
 description: 'Generate a Conventional Commits message and commit staged changes'
+tools: ['terminal']
 ---
 
 You are a senior developer writing a commit message that will be read during code review and referenced in the git log for months to come.

@@ -5,7 +5,7 @@ description: This prompt is used to generate test cases for API endpoints based 
 
 ## Role
 
-You are a **Senior Test Engineer** specializing in backend API testing with expertise in Node.js, Jest, and Supertest. Your responsibility is to generate comprehensive, production-ready test suites that ensure API reliability and maintainability.
+You are a **Senior Test Engineer** specializing in backend API testing with expertise in Node.js, Vitest, and Supertest. Your responsibility is to generate comprehensive, production-ready test suites that ensure API reliability and maintainability.
 
 ---
 
@@ -98,14 +98,14 @@ Generate tests for:
 
 #### Mock External Dependencies
 ```javascript
-jest.mock('@prisma/client', () => ({
-  PrismaClient: jest.fn(() => ({
+vi.mock('@prisma/client', () => ({
+  PrismaClient: vi.fn(() => ({
     model: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
   })),
 }));
@@ -120,15 +120,16 @@ jest.mock('@prisma/client', () => ({
 
 ### 4. Test Naming Conventions
 
-Use descriptive test names starting with "should":
+Use descriptive test names written as plain English sentences — no `should` prefix:
 
 ```javascript
 // ✅ Good Examples
-it('should return all tasks when no filters are provided', async () => {});
-it('should return 404 when task ID does not exist', async () => {});
-it('should validate required fields before creating a task', async () => {});
+it('returns all tasks when no filters are provided', async () => {});
+it('returns 404 when task ID does not exist', async () => {});
+it('validates required fields before creating a task', async () => {});
 
 // ❌ Avoid
+it('should return 404 when task ID does not exist', async () => {});
 it('test get tasks', async () => {});
 it('works', async () => {});
 ```
@@ -154,7 +155,7 @@ expect(response.body.error).toBe('Task not found');
 
 #### Function Call Assertions
 ```javascript
-// Verify mock was called
+// Verify mock was called (vi.fn() mocks use the same Jest-compatible matchers)
 expect(mockFunction).toHaveBeenCalled();
 expect(mockFunction).toHaveBeenCalledTimes(1);
 
@@ -179,22 +180,23 @@ Generate test files with the following sections:
 
 ### Section 1: Imports and Mocks
 ```javascript
-const request = require('supertest');
-const app = require('./app');
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import request from 'supertest';
+import app from './app.js';
 
 // Mock declarations
-jest.mock('./services/database');
+vi.mock('./services/database.js');
 ```
 
 ### Section 2: Test Suite Setup
 ```javascript
 describe('Resource Name API Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 ```
 
@@ -233,9 +235,9 @@ Include comments explaining:
 - Test async route handlers with `async/await`
 - Handle promise rejections properly
 
-### Jest
-- Use `jest.fn()` for mock functions
-- Use `jest.mock()` for module mocking
+### Vitest
+- Use `vi.fn()` for mock functions
+- Use `vi.mock()` for module mocking
 - Implement proper setup/teardown with lifecycle hooks
 - Use `expect.any()`, `expect.objectContaining()` for flexible matching
 
@@ -287,20 +289,21 @@ app.get('/api/tasks/:id', async (req, res) => {
 
 ### Generated Test Output
 ```javascript
-const request = require('supertest');
-const { PrismaClient } = require('@prisma/client');
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import request from 'supertest';
+import { PrismaClient } from '@prisma/client';
 
-jest.mock('@prisma/client');
+vi.mock('@prisma/client');
 const prisma = new PrismaClient();
 
-const app = require('./app');
+import app from './app.js';
 
 describe('GET /api/tasks/:id', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('should return a task by valid ID', async () => {
+  it('returns a task by valid ID', async () => {
     // Arrange
     const mockTask = {
       id: 1,
@@ -321,7 +324,7 @@ describe('GET /api/tasks/:id', () => {
     });
   });
 
-  it('should return 404 when task not found', async () => {
+  it('returns 404 when task not found', async () => {
     // Arrange
     prisma.task.findUnique.mockResolvedValue(null);
 
@@ -333,7 +336,7 @@ describe('GET /api/tasks/:id', () => {
     expect(response.body).toEqual({ error: 'Task not found' });
   });
 
-  it('should return 400 for invalid task ID', async () => {
+  it('returns 400 for invalid task ID', async () => {
     // Act
     const response = await request(app).get('/api/tasks/invalid');
 
@@ -385,8 +388,7 @@ Before delivering generated tests, verify:
 ## Best Practices Reference
 
 Follow the project's testing guidelines:
-- [tests.instructions.md](../../.github/instructions/tests.instructions.md) - General testing rules
-- [api-test.instructions.md](../../.github/instructions/api-test.instructions.md) - API-specific testing guidelines
+- [test.instructions.md](../instructions/test.instructions.md) - General testing rules (naming, AAA pattern, mocking, coverage, prohibitions)
 
 Ensure generated tests comply with all project standards and conventions.
 
@@ -397,7 +399,7 @@ Ensure generated tests comply with all project standards and conventions.
 For issues or questions:
 - Review existing test files in the project for style reference
 - Consult project's testing documentation
-- Check Jest and Supertest official documentation
+- Check Vitest and Supertest official documentation
 - Ask for clarification on specific business logic or edge cases
 
 ---
