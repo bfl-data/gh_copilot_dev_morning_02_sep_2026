@@ -16,6 +16,11 @@ interface UserProfile {
 /** In-memory profile store for the demo. Keyed by user id. */
 const profiles = new Map<string, UserProfile>();
 
+const respondUserNotFound = (res: Response) =>
+  res.status(404).json({
+    error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
+  });
+
 export const userController = {
   /**
    * Creates a user profile.
@@ -64,9 +69,7 @@ export const userController = {
     const profile = profiles.get(id);
     if (!profile) {
       logger.warn({ userId: id }, 'Profile update missed');
-      return res.status(404).json({
-        error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
-      });
+      return respondUserNotFound(res);
     }
 
     const updatedProfile: UserProfile = { ...profile, email, displayName };
@@ -93,9 +96,7 @@ export const userController = {
     const profile = profiles.get(id);
     if (!profile) {
       logger.warn({ userId: id }, 'Profile lookup missed');
-      return res.status(404).json({
-        error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
-      });
+      return respondUserNotFound(res);
     }
 
     return res.status(200).json(profile);
@@ -114,9 +115,7 @@ export const userController = {
 
     if (!profiles.delete(id)) {
       logger.warn({ userId: id }, 'Profile deletion missed');
-      return res.status(404).json({
-        error: { code: 'USER_NOT_FOUND', message: 'No user with that id' },
-      });
+      return respondUserNotFound(res);
     }
 
     logger.info({ userId: id }, 'User profile deleted');
